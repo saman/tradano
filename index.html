@@ -23,15 +23,18 @@
                   <small>{{unitSymbol}}</small> {{ sum | numberFormat(2) }}
                 </h1>
               </div>
+              <div class="level-item">
+                ({{unitSymbol}} {{ sumAll | numberFormat(2) }})
+              </div>
             </div>
             <div class="level-right">
               <div class="level-item">
                 <b-field>
-                  <b-radio-button v-model="unit" native-value="usd" type="is-success">
+                  <b-radio-button v-model="unit" native-value="usd" type="is-light" size="is-small">
                     <b-icon icon="usd"></b-icon>
                     <span>USD</span>
                   </b-radio-button>
-                  <b-radio-button v-model="unit" native-value="eur" type="is-success">
+                  <b-radio-button v-model="unit" native-value="eur" type="is-light" size="is-small">
                     <b-icon icon="eur"></b-icon>
                     <span>EUR</span>
                   </b-radio-button>
@@ -101,18 +104,18 @@
             </span>
           </div>
           <div class="column has-text-right">
-            <!-- <button @click="toggleCoin(item, 'delete')" class="button is-small">
-              <b-icon icon="times" size="is-small" />
-            </button> -->
             <button @click="getCoin(item)" class="button is-small">
               <b-icon icon="refresh" size="is-small" :custom-class="!item.delete && !item.name ? 'fa-spin' : ''" />
             </button>
-            <button @click="toggleCoin(item, 'deactive')" class="button is-small">
+            <!-- <button @click="toggleCoin(item, 'deactive')" class="button is-small">
                 <b-icon :icon="item.deactive ? 'eye' : 'eye-slash'" size="is-small" />
-              </button>            
+              </button>             -->
             <button @click="addCoin(item)" class="button is-small">
-                <b-icon icon="pencil" size="is-small" />
-              </button>            
+              <b-icon icon="pencil" size="is-small" />
+            </button>
+            <button @click="toggleCoin(item, 'delete')" class="button is-small">
+              <b-icon icon="check" size="is-small" />
+            </button>
           </div>
         </div>
       </div>
@@ -221,19 +224,20 @@
               <b-input placeholder="Wallet" type="text" icon="briefcase" v-model="coin.wallet" />
             </b-field>
             <b-field>
-              <b-datepicker position="is-top-right" v-model="coin.date" placeholder="Buy Date" icon="calendar-o" />
+              <b-datepicker :readonly="false" position="is-top-right" v-model="coin.date" placeholder="Buy Date" icon="calendar-o" />
             </b-field>
             <b-field>
-              <b-datepicker position="is-top-right" v-model="coin.date_sell" placeholder="Sell Date" icon="calendar-o" />
+              <b-datepicker :readonly="false" position="is-top-right" v-model="coin.date_sell" placeholder="Sell Date" icon="calendar-o"
+              />
             </b-field>
             <div class="field">
               <b-switch v-model="coin.deactive">
-                Done
+                Deactive
               </b-switch>
             </div>
             <div class="field">
               <b-switch v-model="coin.delete">
-                Hide
+                Done
               </b-switch>
             </div>
             <div class="field" v-if="editMode">
@@ -250,10 +254,35 @@
         </footer>
       </div>
     </div>
-
+    <section class="section"></section>
+    <section class="footer">
+      <div class="columns">
+        <div class="column is-1">
+          <button @click="exportFile" class="button">
+            <b-icon icon="floppy-o"></b-icon>
+            <span>Export</span>
+          </button>
+        </div>
+        <div class="column is-1">
+          <div class="file">
+            <label class="file-label">
+              <input @change="importFile" class="file-input" type="file" name="resume">
+              <span class="file-cta">
+                <span class="file-icon">
+                  <b-icon icon="upload"></b-icon>
+                </span>
+                <span class="file-label">
+                  Import
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <section class="section"></section>
+
 
   <script src="https://cdn.jsdelivr.net/npm/moment"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>

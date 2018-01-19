@@ -1,5 +1,5 @@
 var apiBaseUrl = 'https://cors-anywhere.herokuapp.com/api.coinmarketcap.com/v1/ticker';
-const portfolio = localStorage.getItem('data').length > 0 ? JSON.parse(localStorage.getItem('data')) : [];
+const portfolio = localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data')) : [];
 
 var defaultCoin = {
   uuid: '',
@@ -36,20 +36,67 @@ var app = new Vue({
       return _.orderBy(this.coins, ['deactive', 'value_usd', 'delete'], ['asc', 'desc', 'asc'])
     },
     sum: function () {
-      var sum = 0;
-      this.coins.forEach(item => {
-        if (item && (item.price_usd || item.price_eur) && !item.deactive && !item.delete) {
-          var price = this.unit === 'usd' ? item.price_usd : item.price_eur
-          sum += price * item.amount
-        }
-      })
-      return sum;
+      return this.sumAssets(true)
+    },
+    sumAll: function () {
+      return this.sumAssets(false)
     }
   },
   created: function () {
     this.runApp();
   },
   methods: {
+    isJSON: function (str) {
+      if (_.isNull(str)) return false
+      return !_.isError(_.attempt(JSON.parse, str));
+    },
+    importFile: function (event) {
+      var file = event.target.files[0];
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        if (this.isJSON(event.target.result)) {
+          this.portfolio = []
+          console.log(JSON.parse(event.target.result))
+          this.portfolio = JSON.parse(event.target.result)
+          this.savePortfolio();
+          this.runApp()
+        } else {
+          console.log('JSON ERROR')
+        }
+      }.bind(this);
+
+      reader.readAsText(file);
+    },
+    exportFile: function () {
+      var text = JSON.stringify(this.portfolio, 0, 2);
+      var filename = 'cryptocurrency-portofilio-' + moment(new Date(), "YYYY-MM-DD") + '.json'
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + text);
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    },
+    sumAssets: function (deleted) {
+      var sum = 0;
+      this.coins.forEach(item => {
+        if (item && (item.price_usd || item.price_eur)) {
+          price = this.unit === 'usd' ? item.price_usd : item.price_eur
+          if (deleted && item.deactive) {
+            price = 0;
+          }
+          if (item.delete) {
+            price = 0;
+          }
+          sum += price * item.amount
+        }
+      })
+      return sum;
+    },
     getIndexById: function (item) {
       for (let [index, value] of Object.entries(this.coins)) {
         if (value && JSON.stringify(item) === JSON.stringify(value)) {
@@ -89,7 +136,7 @@ var app = new Vue({
         var indexP = this.getIndexByUUID(item, this.portfolio)
         this.coin = this.portfolio[indexP]
         this.coin.date = new Date(this.coin.date)
-        this.coin.date_sell = new Date(this.coin.date_sell) || ''
+        this.coin.date_sell = this.coin.date_sell ? new Date(this.coin.date_sell) : ''
       } else {
         this.coin = defaultCoin
         this.coin.uuid = this.uuidv4()
@@ -99,18 +146,17 @@ var app = new Vue({
     toggleCoin: function (item, field) {
       var indexC = this.getIndexByUUID(item, this.coins)
       var indexP = this.getIndexByUUID(item, this.portfolio)
-
       if (indexC && indexP) {
         this.coins[indexC][field] = !this.coins[indexC][field];
 
         this.portfolio[indexP][field] = !this.portfolio[indexP][field]
         if (field === 'delete') {
-          this.coins[index]['price_sell'] = this.coins[indexC].price_usd;
-          this.coins[index]['date_sell'] = new Date()
-          this.portfolio[index]['price_sell'] = this.coins[indexP].price_usd;
-          this.portfolio[index]['date_sell'] = new Date()
+          this.coins[indexC]['price_sell'] = this.coins[indexC].price_usd;
+          this.coins[indexC]['date_sell'] = new Date()
+          this.portfolio[indexP]['price_sell'] = this.coins[indexP].price_usd;
+          this.portfolio[indexP]['date_sell'] = new Date()
         }
-
+        this.coins = JSON.parse(JSON.stringify(this.coins));
         this.savePortfolio();
       }
     },
@@ -124,7 +170,7 @@ var app = new Vue({
       var indexC = this.getIndexByUUID(this.coin, this.coins)
       var indexP = this.getIndexByUUID(this.coin, this.portfolio)
 
-      this.coins[indexC] = this.calculateCoin(this.coin, this.coin)
+      this.coins[indexC] = this.calculateCoin([], this.coin, this.coin)
       this.portfolio[indexP] = this.coin
 
       this.addCoinToggle = false
@@ -132,10 +178,11 @@ var app = new Vue({
       this.savePortfolio();
     },
     addCoinSave: function () {
+      console.log(this.coin)
+      var index = this.portfolio.push(this.coin);
       this.$http.get(`${apiBaseUrl}/${this.coin.id}/?convert=EUR`).then(apiResponse => {
-        var index = this.portfolio.push(this.coin);
-        this.savePortfolio();
         this.coins[index] = this.calculateCoin(this.coin, apiResponse.body[0])
+        this.savePortfolio();
         this.addCoinToggle = false
       }, response => {
         console.log(response.body.error);
@@ -162,46 +209,23 @@ var app = new Vue({
         }
       }
 
-      Object.assign(item, coin, more);
-
-      return item
+      return Object.assign({}, item, coin, more);
     },
     runApp: function () {
-      if (this.coins.length === 0 || 1) {
-        // this.coins = [];
-        for (let [index, item] of Object.entries(this.portfolio)) {
-          if (!item.delete) {
-            this.$http.get(`${apiBaseUrl}/${item.id}/?convert=EUR`).then(apiResponse => {
-              this.coins[index] = this.calculateCoin(item, apiResponse.body[0])
-              // console.log(index, item.id, this.coins[index])
-              this.coins = JSON.parse(JSON.stringify(this.coins));
-            })
-            // this.coins[index] = this.calculateCoin(item, item)
-            // this.coins = JSON.parse(JSON.stringify(this.coins));
-          } else {
-            this.coins[index] = this.calculateCoin(item, item)
-          }
-        };
-      }
+      console.log('start')
+      for (let [index, item] of Object.entries(this.portfolio)) {
+        if (!item.delete) {
+          this.$http.get(`${apiBaseUrl}/${item.id}/?convert=EUR`).then(apiResponse => {
+            this.coins[index] = this.calculateCoin(item, apiResponse.body[0])
+            this.coins = JSON.parse(JSON.stringify(this.coins));
+          })
+        } else {
+          this.coins[index] = this.calculateCoin(item, item)
+        }
+      };
     },
     changeUnit: function () {
       this.unit = this.unit == 'usd' ? 'eur' : 'usd';
-      // this.runApp();
-    },
-    compare: function (a, b) {
-      return 1
-      if (a && b) {
-        if ((a.deactive - b.deactive) !== NaN) {
-          return a.deactive - b.deactive
-        }
-      }
-      // if (a.id < b.id)
-      //   return -1;
-      // if (a.id > b.id)
-      //   return 1;
-
-      return 0;
-
     },
     uuidv4: function () {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
