@@ -41,3 +41,39 @@
   margin-bottom: .7rem;
   padding: .75rem
 }
+
+.is-active{
+  box-shadow: inset 0 0 2px #555;
+  border: none;
+}
+
+.search-list-img img {
+  padding-top: 5px;
+}
+
+.list-img img {
+  float: left;
+  margin: 1px 5px 0 0;
+}
+
+.app-style {
+  font-size: 0.8rem;
+  font-family: 'Hind', sans-serif;
+}
+
+.tag{
+  height: 1.5em !important;
+}
+
+.controls{
+  padding: 3px !important;
+}
+
+.controls button{
+  margin: 5px 5px 0 0px;
+  float: right;
+}
+
+.box {
+  border: none !important;
+}
