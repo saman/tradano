@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Tradano - Simple Cryptocurrency Trade Portfolio Tracker</title>
-  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
     integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -15,22 +14,70 @@
 
 <body>
   <div id="app" class="is-invisible app-style">
-    <section class="hero">
-      <div class="hero-body">
-        <div class="container">
-          <div class="level">
-            <div class="level-left">
-              <div class="level-item">
-                <h1 class="title">
-                  <small>{{unitSymbol}}</small> {{ sum | numberFormat(2) }}
-                </h1>
-              </div>
-              <div class="level-item">
-                ({{unitSymbol}} {{ sumAll | numberFormat(2) }})
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">
+
+    <section class="section">
+      <div class="columns">
+        <aside class="column nav is-2">
+          <div class="logo">
+            <img width="32" src="./tradano-logo.svg" alt="Tradano">
+            <h1 class="is-size-4">Tradano</h1>
+          </div>
+          <nav class="menu">
+            <ul class="menu-list new-trade">
+              <li>
+                <a class="button shadow new-asset is-rounded is-white" @click="addCoin()">
+                  <span class="icon">
+                    <b-icon icon="plus" pack="fas"></b-icon>
+                  </span>
+                  <span>New trade</span>
+                </a>
+              </li>
+            </ul>
+            <hr>
+            <ul class="menu-list pages">
+              <li>
+                <a class="button is-transparent" href="#">
+                  <span class="icon">
+                    <b-icon icon="columns" pack="fas"></b-icon>
+                  </span>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li>
+                <a class="button is-transparent active" href="#">
+                  <span class="icon">
+                    <b-icon icon="list-alt" pack="fas"></b-icon>
+                  </span>
+                  <span>Trades</span>
+                </a>
+              </li>
+              <li>
+                <a class="button is-transparent" href="#">
+                  <span class="icon">
+                    <b-icon icon="coins" pack="fas"></b-icon>
+                  </span>
+                  <span>Portofolio</span>
+                </a>
+              </li>
+              <li class="settings">
+                <a class="button is-transparent" href="#">
+                  <span class="icon">
+                    <b-icon icon="cog" pack="fas"></b-icon>
+                  </span>
+                  <span>Settings</span>
+                </a>
+              </li>
+              <li v-if=0>
+                <button @click="reset" class="button">
+                  <b-icon icon="undo" pack="fas"></b-icon>
+                </button>
+                <button @click="exportFile" class="button">
+                  <b-icon icon="save" pack="fas"></b-icon>
+                </button>
+                <label class="button fake-file">
+                  <input @change="importFile" class="file-input" type="file" name="resume">
+                  <b-icon icon="file-code" pack="fas"></b-icon>
+                </label>
                 <b-field>
                   <b-radio-button v-model="unit" native-value="usd" type="is-light is-active" size="is-small">
                     <b-icon icon="dollar-sign" pack="fas"></b-icon>
@@ -41,101 +88,293 @@
                     <span>EUR</span>
                   </b-radio-button>
                 </b-field>
-              </div>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <main class="column">
+          <div class="level" v-if="false">
+            <div class="level-left">
               <div class="level-item">
-                <button class="button" @click="addCoin()">Add asset</button>
+                <div class="title">
+                  <small>{{unitSymbol}}</small> {{ sum | numberFormat(2) }}
+                  ({{unitSymbol}} {{ sumAll | numberFormat(2) }})
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          <div class="columns main box shadow is-multiline">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Pair</th>
+                    <th></th>
+                    <th></th>
+                    <th>Hodling</th>
+                    <th class="has-text-right">Buy Price</th>
+                    <th class="has-text-right">Sell Price</th>
+                    <th class="has-text-right">Current Price</th>
+                    <th class="has-text-right">Amount</th>
+                    <th class="has-text-right">Buy Value</th>
+                    <th class="has-text-right">Sell Value</th>
+                    <th class="has-text-right">Value</th>
+                    <th class="has-text-right">Profit/Lose</th>
+                    <!-- <th>1H, 24H, 7D</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in sortedCoins" v-if="item">
+
+                    <!-- Controls -->
+                    <td>
+                      <b-dropdown aria-role="list">
+                        <button :class="['button is-small more', {'is-loading': item.loading}]" slot="trigger">
+                          <b-icon icon="ellipsis-h" pack="fas" size="is-small"></b-icon>
+                        </button>
+
+                        <b-dropdown-item @click="toggleCoin(item, 'done')" aria-role="listitem">
+                          <b-icon icon="check" pack="fas" size="is-small"></b-icon>
+                          Done
+                        </b-dropdown-item>
+                        <b-dropdown-item @click="addCoin(item)" aria-role="listitem">
+                          <b-icon icon="pencil-alt" pack="fas" size="is-small"></b-icon>
+                          Edit
+                        </b-dropdown-item>
+                        <b-dropdown-item @click="getCoin(item)" aria-role="listitem">
+                          <b-icon icon="sync-alt" pack="fas" size="is-small"></b-icon>
+                          Sync
+                        </b-dropdown-item>
+                        <b-dropdown-item @click="toggleCoin(item, 'deactive')" aria-role="listitem">
+                          <b-icon pack="fas" :icon="item.deactive ? 'eye' : 'eye-slash'" size="is-small"></b-icon>
+                          {{ item.deactive ? 'Active' : 'Deactive' }}
+                        </b-dropdown-item>
+                      </b-dropdown>
+                    </td>
+
+                    <!-- Pair -->
+                    <td>
+                      <img class="pair" :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.realId}.png`"
+                        :alt="item.name">
+                      {{item.symbol}}
+
+                    </td>
+
+                    <td class="trade-icon-cell">
+                      <span class="trade-icon"></span>
+                    </td>
+
+                    <td>
+                      <span v-if="item.from">
+                        <img class="pair"
+                          :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.from.realId}.png`"
+                          :alt="item.from.name">
+                        {{item.from.symbol}}
+                      </span>
+                    </td>
+
+                    <!-- Hodling -->
+                    <td>
+                      {{item.date || '' | moment}}
+                    </td>
+
+                    <!-- Buy Price -->
+                    <td class="has-text-right">
+                      {{item.price | numberFormat(10)}}
+                    </td>
+
+                    <!-- Sell Price -->
+                    <td class="has-text-right">
+                      {{item.priceSell | numberFormat}}
+                    </td>
+
+                    <!-- Current Price -->
+                    <td class="has-text-right">
+                      {{item.price_btc | numberFormat}}
+                    </td>
+
+                    <!-- Amount -->
+                    <td class="has-text-right">
+                      {{ item.amount | numberFormat }}
+                    </td>
+
+                    <!-- Buy Value -->
+                    <td class="has-text-right">
+                      {{item.price * item.amount | numberFormat}}
+                    </td>
+
+                    <!-- Sell Value -->
+                    <td class="has-text-right">
+                      {{item.priceSell * item.amount | numberFormat}}
+                    </td>
+
+                    <!-- Current Vlaue -->
+                    <td class="has-text-right">
+                      {{item.price_btc * item.amount | numberFormat}}
+                    </td>
+
+                    <!-- Profit -->
+                    <td class="has-text-right">
+                      <span
+                        :class="['bold has-text-right', {'has-text-success': item.profit_usd > 0, 'has-text-danger': item.profit_usd < 0}]">
+                        {{ (item.priceSell - item.price) * item.amount | numberFormat}}
+                        <span v-if="item.price > 0">(%{{(1-(item.price/item.priceSell))*100 | numberFormat(2)}})</span>
+                      </span>
+                    </td>
+
+                    <!-- Changes (1H, 24H, 7D) -->
+                    <td v-if=0>
+                      <span class="tag is-rounded" v-if="item.percent_change_1h">
+                        <span
+                          :class="[{'color-green': item.percent_change_1h > 0, 'color-red': item.percent_change_1h < 0}]">
+                          %{{Math.abs(item.percent_change_1h)}}
+                        </span>
+                      </span>
+                      <span class="tag is-rounded" v-if="item.percent_change_24h">
+                        <span
+                          :class="[{'color-green': item.percent_change_24h > 0, 'color-red': item.percent_change_24h < 0}]">
+                          %{{Math.abs(item.percent_change_24h)}}
+                        </span>
+                      </span>
+                      <span class="tag is-rounded" v-if="item.percent_change_7d">
+                        <span
+                          :class="[{'color-green': item.percent_change_7d > 0, 'color-red': item.percent_change_7d < 0}]">
+                          %{{Math.abs(item.percent_change_7d)}}
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="columns main box shadow is-multiline" v-if="false">
+            <div class="column">
+              <div class="columns">
+                <div class="column is-2">Pair</div>
+                <div class="column">Buy Price</div>
+                <div class="column">Sell Price</div>
+                <div class="column">Current Price</div>
+                <div class="column">Amount</div>
+                <div class="column">Comission</div>
+                <div class="column">Buy Value</div>
+                <div class="column">Sell Value</div>
+                <div class="column">Current Value</div>
+                <div class="column">Profit/Lose</div>
+                <div class="column">Hodling</div>
+                <div class="column is-2">Changes (1H, 24H, 7D)</div>
+                <div class="column">Controls</div>
+              </div>
+              <div v-for="item in sortedCoins" v-if="item">
+
+                <div :class="['box item', { half: item.deactive, gray: item.done }]">
+                  <div class="columns">
+                    <div class="column is-2 list-img">
+                      <img width="16" :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.realId}.png`"
+                        :alt="item.name">
+                      {{item.symbol}}
+                      <span class="trade-icon"></span>
+                      <span v-if="item.from">
+                        <img width="16"
+                          :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.from.realId}.png`"
+                          :alt="item.from.name">
+                        {{item.from.symbol}}
+                      </span>
+                    </div>
+                    <div class="column has-text-right">
+                      {{item.price | numberFormat(10)}}
+                    </div>
+                    <div class="column has-text-right">
+                      {{item.priceSell | numberFormat}}
+                    </div>
+                    <div class="column has-text-right">
+                      C1
+                    </div>
+                    <!-- <div class="column">
+                      {{ item[`price_${unit}`] * amount | numberFormat }}
+                    </div>
+                    <div class="column">
+                      {{unitSymbol}} {{ item[`price_${unit}`] | numberFormat }}
+                    </div> -->
+                    <div class="column has-text-right">
+                      {{item.price * item.amount | numberFormat}}
+                    </div>
+                    <div class="column has-text-right">
+                      {{item.priceSell * item.amount | numberFormat}}
+                    </div>
+                    <div class="column has-text-right">
+                      {{item.price_btc * item.amount | numberFormat}}
+                    </div>
+                    <div class="column has-text-right">
+                      {{ item.amount | numberFormat }}
+                    </div>
+                    <div class="column has-text-right">
+                      {{unitSymbol}} {{ item[`value_${unit}`] | numberFormat(2) }}
+                    </div>
+                    <div
+                      :class="['is-2 bold column has-text-right', {'has-text-success': item.profit_usd > 0, 'has-text-danger': item.profit_usd < 0}]">
+                      <!-- {{unitSymbol}} {{ Math.abs(item[`profit_${unit}`]) | numberFormat(2)}} -->
+                      {{ (item.priceSell - item.price) * item.amount | numberFormat}}
+                      <span v-if="item.price > 0">(%{{(1-(item.price/item.priceSell))*100 | numberFormat(2)}})</span>
+                    </div>
+                    <div class="column">
+                      <small>{{item.date || '' | moment}}</small>
+                    </div>
+                    <div class="column is-2">
+                      <span class="tag is-rounded" v-if="item.percent_change_1h">
+                        <span
+                          :class="[{'color-green': item.percent_change_1h > 0, 'color-red': item.percent_change_1h < 0}]">
+                          %{{Math.abs(item.percent_change_1h)}}
+                        </span>
+                      </span>
+                      <span class="tag is-rounded" v-if="item.percent_change_24h">
+                        <span
+                          :class="[{'color-green': item.percent_change_24h > 0, 'color-red': item.percent_change_24h < 0}]">
+                          %{{Math.abs(item.percent_change_24h)}}
+                        </span>
+                      </span>
+                      <span class="tag is-rounded" v-if="item.percent_change_7d">
+                        <span
+                          :class="[{'color-green': item.percent_change_7d > 0, 'color-red': item.percent_change_7d < 0}]">
+                          %{{Math.abs(item.percent_change_7d)}}
+                        </span>
+                      </span>
+                    </div>
+                    <div class="column has-text-right controls">
+                      <button @click="toggleCoin(item, 'done')" class="button is-small">
+                        <b-icon icon="check" pack="fas" size="is-small" />
+                      </button>
+                      <!-- <button @click="toggleCoin(item, 'deactive')" class="button is-small">
+                        <b-icon :icon="item.deactive ? 'eye' : 'eye-slash'" size="is-small" />
+                      </button>             -->
+                      <button @click="addCoin(item)" class="button is-small">
+                        <b-icon icon="pencil-alt" pack="fas" size="is-small" />
+                      </button>
+                      <button v-if="!item.done" :disabled="item.loading" @click="getCoin(item)" class="button is-small">
+                        <b-icon icon="sync-alt" pack="fas" size="is-small"
+                          :custom-class="item.loading ? 'fa-spin' : ''" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <hr>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </section>
 
-    <div class="container coins">
-      <div class="box headline">
-        <div class="columns">
-          <div class="column is-2">Name</div>
-          <div class="column">Price</div>
-          <div class="column">Hodling</div>
-          <div class="column">Amount</div>
-          <div class="column">Value</div>
-          <div class="column">Profit/Lose</div>
-          <div class="column is-2">Changes (1H, 24H, 7D)</div>
-          <div class="column">Controls</div>
-        </div>
-      </div>
-      <!-- && !item.delete -->
-      <div :class="['box', { half: item.deactive, gray: item.delete }]" v-for="item in sortedCoins" v-if="item">
-        <div class="columns">
-          <div class="column is-2 list-img">
-            <img width="16" :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.real_id}.png`"
-              :alt="item.name">
-            {{ item.name || item.id }}
-            <br>
-            <div v-if="item.from">
-              <img width="16" :src="`http://s2.coinmarketcap.com/static/img/coins/32x32/${item.from.real_id}.png`"
-                :alt="item.from.name">
-              {{ item.from.name || item.from.id }}
-              <small v-if="item.from.symbol">({{item.from.symbol}})</small>
-            </div>
-          </div>
-          <div class="column">
-            {{unitSymbol}} {{ item[`price_${unit}`] | numberFormat }}
-          </div>
-          <div class="column">
-            <small>{{item.date || '' | moment}}</small>
-          </div>
-          <div class="column">
-            {{ item.amount | numberFormat }}
-          </div>
-          <div class="column">
-            {{unitSymbol}} {{ item[`value_${unit}`] | numberFormat(2) }}
-          </div>
-          <div
-            :class="['is-2 bold column', {'has-text-success': item.profit_usd > 0, 'has-text-danger': item.profit_usd < 0}]">
-            {{unitSymbol}} {{ Math.abs(item[`profit_${unit}`]) | numberFormat(2)}}
-            <span v-if="item.price > 0">(%{{ Math.abs(item.profit) | numberFormat(2)}})</span>
-          </div>
-
-          <div class="column is-2">
-            <span class="tag is-rounded" v-if="item.percent_change_1h">
-              <span :class="[{'color-green': item.percent_change_1h > 0, 'color-red': item.percent_change_1h < 0}]">
-                %{{Math.abs(item.percent_change_1h)}}
-              </span>
-            </span>
-            <span class="tag is-rounded" v-if="item.percent_change_24h">
-              <span :class="[{'color-green': item.percent_change_24h > 0, 'color-red': item.percent_change_24h < 0}]">
-                %{{Math.abs(item.percent_change_24h)}}
-              </span>
-            </span>
-            <span class="tag is-rounded" v-if="item.percent_change_7d">
-              <span :class="[{'color-green': item.percent_change_7d > 0, 'color-red': item.percent_change_7d < 0}]">
-                %{{Math.abs(item.percent_change_7d)}}
-              </span>
-            </span>
-          </div>
-          <div class="column has-text-right controls">
-            <button @click="toggleCoin(item, 'delete')" class="button is-small">
-              <b-icon icon="check" pack="fas" size="is-small" />
-            </button>
-            <!-- <button @click="toggleCoin(item, 'deactive')" class="button is-small">
-                <b-icon :icon="item.deactive ? 'eye' : 'eye-slash'" size="is-small" />
-              </button>             -->
-            <button @click="addCoin(item)" class="button is-small">
-              <b-icon icon="pencil-alt" pack="fas" size="is-small" />
-            </button>
-            <button v-if="!item.delete" :disabled="item.loading" @click="getCoin(item)" class="button is-small">
-              <b-icon icon="sync-alt" pack="fas" size="is-small" :custom-class="item.loading ? 'fa-spin' : ''" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- start modal -->
     <div :class="['modal', {'is-active': addCoinToggle}]">
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">{{editMode ? 'Edit' : 'Add'}} asset</p>
+          <p class="modal-card-title">{{editMode ? 'Edit' : 'Add'}} trade</p>
           <button class="delete" aria-label="close" @click="addCoinToggle=false"></button>
         </header>
         <section class="modal-card-body">
@@ -186,14 +425,16 @@
               </b-autocomplete>
             </b-field>
             <b-field>
-              <b-input placeholder="Amount" type="text" icon="money-bill-alt" icon-pack="fas" v-model="coin.amount" />
+              <b-input placeholder="Amount" type="number" step="any" icon="money-bill-alt" icon-pack="fas"
+                v-model="coin.amount" />
             </b-field>
             <b-field>
-              <b-input placeholder="Buy Price" type="text" icon="dollar-sign" icon-pack="fas" v-model="coin.price" />
+              <b-input placeholder="Buy Price" type="number" step="any" icon="dollar-sign" icon-pack="fas"
+                v-model="coin.price" />
             </b-field>
             <b-field>
-              <b-input placeholder="Sell Price" type="text" icon="dollar-sign" icon-pack="fas"
-                v-model="coin.price_sell" />
+              <b-input placeholder="Sell Price" type="number" step="any" icon="dollar-sign" icon-pack="fas"
+                v-model="coin.priceSell" />
             </b-field>
             <b-field>
               <b-input placeholder="Wallet" type="text" icon="briefcase" icon-pack="fas" v-model="coin.wallet" />
@@ -203,7 +444,7 @@
                 icon="calendar" icon-pack="fas" />
             </b-field>
             <b-field>
-              <b-datepicker :readonly="false" position="is-top-right" v-model="coin.date_sell" placeholder="Sell Date"
+              <b-datepicker :readonly="false" position="is-top-right" v-model="coin.dateSell" placeholder="Sell Date"
                 icon="calendar-check" icon-pack="fas" />
             </b-field>
             <div class="field">
@@ -212,7 +453,7 @@
               </b-switch>
             </div>
             <div class="field">
-              <b-switch v-model="coin.delete">
+              <b-switch v-model="coin.done">
                 Done
               </b-switch>
             </div>
@@ -230,38 +471,7 @@
         </footer>
       </div>
     </div>
-    <section class="section"></section>
-    <section class="footer">
-      <div class="columns">
-        <div class="column is-1">
-          <button @click="reset" class="button">
-            <b-icon icon="save" pack="fas"></b-icon>
-            <span>Reset</span>
-          </button>
-        </div>
-        <div class="column is-1">
-          <button @click="exportFile" class="button">
-            <b-icon icon="save" pack="fas"></b-icon>
-            <span>Export</span>
-          </button>
-        </div>
-        <div class="column is-1">
-          <div class="file">
-            <label class="file-label">
-              <input @change="importFile" class="file-input" type="file" name="resume">
-              <span class="file-cta">
-                <span class="file-icon">
-                  <b-icon icon="file-code" pack="fas"></b-icon>
-                </span>
-                <span class="file-label">
-                  Import
-                </span>
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- end modal -->
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/moment"></script>

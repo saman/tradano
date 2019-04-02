@@ -1,5 +1,19 @@
+html {
+  overflow-y: auto !important;
+  background: #F5F6F9;
+}
+
+.app-style {
+  font-size: 0.8rem;
+  color: #202538;
+}
+
+.color-app {
+  color: #3E5BF5;
+}
+
 .color-red {
-  color:hsl(348, 100%, 61%)
+  color: hsl(348, 100%, 61%)
 }
 
 .color-green {
@@ -33,7 +47,7 @@
   margin: 0 !important;
 }
 
-.modal-body{
+.modal-body {
   padding: 2rem 0;
 }
 
@@ -42,7 +56,7 @@
   padding: .75rem
 }
 
-.is-active{
+.is-active {
   box-shadow: inset 0 0 2px #555;
   border: none;
 }
@@ -51,29 +65,145 @@
   padding-top: 5px;
 }
 
-.list-img img {
-  float: left;
-  margin: 1px 5px 0 0;
+img.pair {
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  width: 16px;
 }
 
-.app-style {
-  font-size: 0.8rem;
-  font-family: 'Hind', sans-serif;
-}
-
-.tag{
+.tag {
   height: 1.5em !important;
 }
 
-.controls{
+.controls {
   padding: 3px !important;
 }
 
-.controls button{
+.controls button {
   margin: 5px 5px 0 0px;
   float: right;
 }
 
 .box {
   border: none !important;
+}
+
+.hero-body {
+  align-items: flex-start !important;
+}
+
+.logo h1 {
+  display: inline;
+  margin-left: 10px;
+  font-style: initial;
+  text-transform: uppercase;
+}
+
+.fake-file .icon {
+  margin: 0 -6px !important;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 30px 0;
+  padding: 30px;
+}
+
+.shadow {
+  box-shadow: 0 5px 10px rgba(50, 50, 93, 0.08) !important;
+}
+
+.button.is-transparent {
+  background: none;
+  border: none;
+}
+
+.button.more {
+  position: relative;
+  top: 2px;
+  padding: 0 .75em;
+  height: inherit;
+}
+
+.menu-list .button {
+  text-align: left;
+  display: inline-flex;
+  padding: 0 50px;
+  color: #A6ADC4;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.menu-list .button.active {
+  color: #202538;
+}
+
+.menu-list.pages li {
+  margin: 30px 0;
+}
+
+.main {
+  margin-left: 3rem;
+  padding: 2rem;
+}
+
+.section {
+  padding: 3rem;
+}
+
+.nav {
+  padding: 0;
+}
+
+.box.item {
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+hr {
+  opacity: 0.9;
+  border: none;
+  border-bottom: 1px solid #E7E9F0 !important;
+  height: 1px !important;
+  margin: 0 !important;
+}
+
+.table .trade-icon-cell {
+  padding: 1.75em 0;
+}
+
+.trade-icon {
+  opacity: 0.5;
+  background: url('./trade.svg');
+  height: 9px;
+  width: 13px;
+  background-size: cover;
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.menu-list .new-asset {
+  padding: 27px 50px;
+}
+
+.new-asset span {
+  color: #3E5BF5;
+  font-weight: bold;
+}
+
+.new-trade {
+  margin: 40px 0;
+}
+
+.table td {
+  border-bottom: 1px solid #E7E9F0;
+  padding: 1.75em .75em;
+}
+
+.table th {
+  border: none;
 }

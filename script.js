@@ -10,15 +10,15 @@ const unit = localStorage.getItem('unit') || 'usd';
 var defaultCoin = {
   uuid: '',
   id: '',
-  real_id: '',
+  realId: '',
   wallet: '',
   amount: '',
   price: '',
-  price_sell: '',
+  priceSell: '',
   date: new Date(),
-  date_sell: null,
+  dateSell: null,
   deactive: false,
-  delete: false,
+  done: false,
   comment: '',
   tags: '',
   from: {}
@@ -34,25 +34,26 @@ var app = new Vue({
     filteredSearchList: [],
     selectedSearchListItem: {},
     selectedSearchListFromItem: {},
-    portfolio: portfolio,
+    portfolio,
     coin: defaultCoin,
     coin_temp: {},
-    unit: unit,
+    unit,
     editMode: false,
     addCoinToggle: false,
   },
   computed: {
-    unitSymbol: function () {
+    unitSymbol() {
       if (this.unit == 'eur') return '€';
-      return '$';
+      return "$";
     },
-    sortedCoins: function () {
-      return _.orderBy(this.portfolio, ['deactive', 'value_usd', 'delete'], ['asc', 'desc', 'asc'])
+    sortedCoins() {
+      return _.orderBy(this.portfolio, ['date'], ['asc'])
+      // return _.orderBy(this.portfolio, ['deactive', 'value_usd', 'delete'], ['asc', 'desc', 'asc'])
     },
-    sum: function () {
+    sum() {
       return this.sumAssets(true)
     },
-    sumAll: function () {
+    sumAll() {
       return this.sumAssets(false)
     }
   },
@@ -67,46 +68,44 @@ var app = new Vue({
     selectedSearchListItem: function (val) {
       if (val !== null) {
         this.coin.id = val.slug;
-        this.coin.real_id = val.id;
+        this.coin.realId = val.id;
       }
     },
     selectedSearchListFromItem: function (val) {
       console.log(val);
       if (val !== null) {
         this.coin.from.id = val.slug;
-        this.coin.from.real_id = val.id;
+        this.coin.from.realId = val.id;
         console.log(this.coin);
       }
     }
   },
   methods: {
-    isJSON: function (str) {
+    isJSON(str) {
       if (_.isNull(str)) return false
       return !_.isError(_.attempt(JSON.parse, str));
     },
-    reset: function () {
+    reset() {
       this.portfolio = [];
       this.savePortfolio();
       this.unit = 'usd';
       window.location.reload();
     },
-    importFile: function (event) {
+    importFile(event) {
       var file = event.target.files[0];
       var reader = new FileReader();
       reader.onload = function (event) {
         if (this.isJSON(event.target.result)) {
-          this.portfolio = []
+          this.portfolio = [];
           this.portfolio = JSON.parse(event.target.result)
           this.savePortfolio();
           this.runApp()
-        } else {
-          console.log('JSON ERROR')
         }
       }.bind(this);
 
       reader.readAsText(file);
     },
-    exportFile: function () {
+    exportFile() {
       var text = JSON.stringify(this.portfolio, 0, 2);
       var filename = 'tradano-' + moment(new Date(), "YYYY-MM-DD") + '.json'
       var element = document.createElement('a');
@@ -120,7 +119,7 @@ var app = new Vue({
 
       document.body.removeChild(element);
     },
-    sumAssets: function (deleted) {
+    sumAssets (deleted) {
       var sum = 0;
       if (this.portfolio.length) {
         this.portfolio.forEach(item => {
@@ -129,7 +128,7 @@ var app = new Vue({
             if (deleted && item.deactive) {
               price = 0;
             }
-            if (item.delete) {
+            if (item.done) {
               price = 0;
             }
             sum += price * item.amount
@@ -138,36 +137,36 @@ var app = new Vue({
       }
       return sum;
     },
-    getIndexById: function (item) {
+    getIndexById (item) {
       for (let [index, value] of Object.entries(this.portfolio)) {
         if (value && JSON.stringify(item) === JSON.stringify(value)) {
           return index
         }
       }
     },
-    makeuuid: function (item) {
+    makeuuid (item) {
       var index = this.getIndexById(item)
       this.portfolio[index]['uuid'] = this.uuidv4();
       this.savePortfolio();
     },
-    getIndexByUUID: function (item, list) {
+    getIndexByUUID (item, list) {
       for (let [index, value] of Object.entries(list)) {
         if (value && item.uuid === value.uuid) {
           return index
         }
       }
     },
-    savePortfolio: function () {
+    savePortfolio () {
       var portfolio = JSON.stringify(this.portfolio);
       localStorage.setItem('portfolio', portfolio);
     },
-    removeCoin: function () {
+    removeCoin () {
       var indexP = this.getIndexByUUID(this.coin, this.portfolio);
       this.portfolio.splice(indexP, 1);
       this.addCoinToggle = false;
       this.savePortfolio();
     },
-    addCoin: function (item) {
+    addCoin (item) {
       if (item !== undefined) {
         this.editMode = true
         this.coin_temp = item;
@@ -182,47 +181,48 @@ var app = new Vue({
       }
       this.addCoinToggle = !this.addCoinToggle
     },
-    toggleCoin: function (item, field) {
-      if (field === 'delete') {
-        if (item.delete) {
-          this.unDeleteCoin(item);
+    toggleCoin (item, field) {
+      if (field === 'done') {
+        if (item.done) {
+          this.unDoneCoin(item);
         } else {
-          this.deleteCoin(item);
+          this.doneCoin(item);
         }
-        item.delete = !item.delete;
+        item.done = !item.done;
       }
       this.savePortfolio();
     },
-    deleteCoin: function (item) {
+    doneCoin (item) {
       item.percent_change_1h = '';
       item.percent_change_7d = '';
       item.percent_change_24h = '';
-      item.price_sell = item.price_usd;
       item.date_sell = new Date();
+      if (!item.priceCell) {
+        item.priceSell = item.price_btc;
+      }      
     },
-    unDeleteCoin: function (item) {
-      item.price_sell = '';
+    unDoneCoin (item) {
       item.date_sell = '';
       this.getCoin(item);
     },
-    editCoin: function () {
+    editCoin () {
       if (this.editMode)
         this.editCoinSave()
       else
         this.addCoinSave()
     },
-    cancelEditCoin: function () {
+    cancelEditCoin () {
       this.addCoinToggle = false;
     },
-    editCoinSave: function () {
+    editCoinSave () {
       this.$http.get(`${api.baseUrl}/${this.coin.id}/?convert=EUR`).then(response => {
         this.$http.get(`${api.baseUrl}/${this.coin.from.id}/?convert=EUR`).then(to_response => {
           this.coin.from = { ...this.coin.from, ...to_response.body[0] };
           const new_data = this.calculateCoin(this.coin, response.body[0]);
           this.deepSave(new_data, this.coin_temp);
           this.addCoinToggle = false
-          if (this.coin_temp.delete) {
-            this.deleteCoin(this.coin_temp);
+          if (this.coin_temp.done) {
+            this.doneCoin(this.coin_temp);
           }
           this.savePortfolio();
         });
@@ -230,7 +230,7 @@ var app = new Vue({
         console.log(response.body.error);
       });
     },
-    addCoinSave: function () {
+    addCoinSave () {
       this.$http.get(`${api.baseUrl}/${this.coin.id}/?convert=EUR`).then(response => {
         this.$http.get(`${api.baseUrl}/${this.coin.from.id}/?convert=EUR`).then(to_response => {
           this.coin.from = { ...this.coin.from, ...to_response.body[0] };
@@ -247,11 +247,11 @@ var app = new Vue({
 
       let more = {}
 
-      if (coin.delete) {
+      if (coin.done) {
         more = {
-          value_usd: coin.amount * (coin.price_sell || 0),
-          profit_usd: (coin.price_sell || 0) * coin.amount - coin.price * coin.amount,
-          profit: (coin.price_sell || 0) * coin.amount * 100 / (coin.price * coin.amount) - 100
+          value_usd: coin.amount * (coin.priceSell || 0),
+          profit_usd: (coin.priceSell || 0) * coin.amount - coin.price * coin.amount,
+          profit: (coin.priceSell || 0) * coin.amount * 100 / (coin.price * coin.amount) - 100
         }
       } else {
         more = {
@@ -265,21 +265,22 @@ var app = new Vue({
 
       return { ...coin, ...item, ...more };
     },
-    getSearchList: function () {
+    getSearchList () {
       this.$http.get(api.searchListUrl).then(response => {
         if (response.status === 200) {
           this.searchList = response.body;
         }
       });
     },
-    findInSearchList: function (name) {
+    findInSearchList (name) {
       // this.filteredSearchList = [];
       // _.debounce(() => {
       this.filteredSearchList = this.searchList.filter(x => JSON.stringify(x).toLowerCase().indexOf(name.toLowerCase()) >= 0).slice(0, 10);
       // }, 500);
     },
-    getCoin: function (item) {
+    getCoin (item) {
       item.loading = true;
+      console.log(item.loading);
       this.$http.get(`${api.baseUrl}/${item.id}/?convert=EUR`).then(response => {
         this.$http.get(`${api.baseUrl}/${item.from.id}/?convert=EUR`).then(to_response => {
           delete item.loading;
@@ -294,40 +295,42 @@ var app = new Vue({
         delete item.loading;
       });
     },
-    runApp: function () {
+    runApp () {
       this.getSearchList();
       this.portfolio.forEach(item => {
-        if (!item.delete) {
+        if (!item.done) {
           this.getCoin(item);
         }
       });
     },
-    uuidv4: function () {
+    uuidv4 () {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
-    clone: function (obj) {
+    clone (obj) {
       return JSON.parse(JSON.stringify(obj));
     },
-    deepSave: function (source, target) {
+    deepSave (source, target) {
       for (var k in source) target[k] = source[k];
     }
   },
   filters: {
-    moment: function (value) {
-      if (moment && value) return moment(value, "YYYY-MM-DD").fromNow();
+    moment (value) {
+      if (moment && value) return moment(value, "YYYY-MM-DD").fromNow(true);
       return '-'
     },
-    unitSymbol: function () {
+    unitSymbol () {
       if (this.unit == 'eur') return '€';
       return '$';
     },
-    numberFormat: function (value, count = 4) {
+    numberFormat (value, count = 10) {
       if (!isNaN(parseFloat(value)) && isFinite(value)) {
         const tmp = parseFloat(value).toFixed(count)
-        return new Intl.NumberFormat().format(tmp);
+        return _.trimEnd(Intl.NumberFormat('en-US', {
+          minimumFractionDigits: count
+        }).format(tmp), ['.', '0']);
       }
       return '-'
     }
