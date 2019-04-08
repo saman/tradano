@@ -3,7 +3,7 @@ html {
   background: #F5F6F9;
 }
 
-.app-style {
+#app {
   font-size: 0.8rem;
   color: #202538;
 }
@@ -32,13 +32,13 @@ html {
   text-align: right;
 }
 
-.half {
+.half td{
   opacity: 0.5;
 }
 
-.gray {
+.gray td{
   opacity: 0.5;
-  background: #EEE
+  background: #f8f8f8;
 }
 
 .headline {
@@ -74,15 +74,6 @@ img.pair {
 
 .tag {
   height: 1.5em !important;
-}
-
-.controls {
-  padding: 3px !important;
-}
-
-.controls button {
-  margin: 5px 5px 0 0px;
-  float: right;
 }
 
 .box {
@@ -206,4 +197,29 @@ hr {
 
 .table th {
   border: none;
+}
+
+.settings-buttons .button {
+    padding: 0 13px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    opacity: 1 !important;
+}
+
+td.controls {
+  opacity: 1;
+  background: none;
+}
+
+.input {
+    box-shadow: none;
+}
+
+.modal-card-foot .remove-btn {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
