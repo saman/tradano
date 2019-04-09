@@ -68,13 +68,13 @@ new Vue({
       localStorage.setItem('unit', val);
     },
     selectedSearchListItem: function (val) {
-      if (val !== null) {
+      if (!_.isEmpty(val)) {
         this.coin.id = val.slug;
         this.coin.realId = val.id;
       }
     },
     selectedSearchListFromItem: function (val) {
-      if (val !== null) {
+      if (!_.isEmpty(val)) {
         this.coin.from.id = val.slug;
         this.coin.from.realId = val.id;
       }
@@ -166,7 +166,7 @@ new Vue({
     },
     addCoin(item) {
       this.selectedSearchListItem = {};
-      this.selectedSearchListFromItem = {};      
+      this.selectedSearchListFromItem = {};
       if (item !== undefined) {
         this.editMode = true;
         this.coin_temp = item;
