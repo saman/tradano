@@ -67,7 +67,7 @@
                   <span>Settings</span>
                 </a>
               </li>
-              <li v-if=1>
+              <li>
                 <div class="settings-buttons" style="display: inline-flex">
                   <button @click="reset" class="button">
                     <b-icon icon="undo" pack="fas"></b-icon>
@@ -79,15 +79,26 @@
                     <input @change="importFile" class="file-input" type="file" name="resume">
                     <b-icon icon="file-code" pack="fas"></b-icon>
                   </label>
-
-                  <b-field v-if=0>
-                    <b-radio-button v-model="unit" native-value="usd" type="is-light is-active" size="is-small">
-                      <b-icon icon="dollar-sign" pack="fas"></b-icon>
-                      <span>USD</span>
+                </div>
+              </li>
+              <li>
+                <div class="settings-buttons-unit" style="display: inline-flex">
+                  <b-field>
+                    <b-radio-button v-model="unit" native-value="dv" size="is-small">
+                      <span class="icon">
+                        -
+                      </span>
                     </b-radio-button>
-                    <b-radio-button v-model="unit" native-value="eur" type="is-light is-active" size="is-small">
+                    <b-radio-button v-model="unit" native-value="btc" size="is-small">
+                      <span class="icon">
+                        <i class="fab fa-bitcoin"></i>
+                      </span>
+                    </b-radio-button>
+                    <b-radio-button v-model="unit" native-value="usd" size="is-small">
+                      <b-icon icon="dollar-sign" pack="fas"></b-icon>
+                    </b-radio-button>
+                    <b-radio-button v-model="unit" native-value="eur" size="is-small">
                       <b-icon icon="euro-sign" pack="fas"></b-icon>
-                      <span>EUR</span>
                     </b-radio-button>
                   </b-field>
                 </div>
@@ -217,7 +228,9 @@
 
                     <!-- Current Vlaue -->
                     <td class="has-text-right">
-                      {{item.valueCurrent_btc | numberFormat}}
+                      <!-- {{item.valueCurrent_btc | numberFormat}} -->
+                      {{item.valueCurrent[unit] | numberFormat}}
+                      <small>{{unit}}</small>
                     </td>
 
                     <!-- Profit -->

@@ -5,7 +5,7 @@ const api = {
 };
 
 const portfolio = localStorage.getItem('portfolio') ? JSON.parse(localStorage.getItem('portfolio')) : [];
-const unit = localStorage.getItem('unit') || 'usd';
+const unit = localStorage.getItem('unit') || 'dv';
 
 const defaultCoin = {
   uuid: '',
@@ -261,7 +261,7 @@ new Vue({
     },
     calculateCoin(coin, item) {
       const price_eur = coin.price * item.price_eur / item.price_usd
-      
+
       let more = {}
       if (coin.done) {
         more = {
@@ -272,14 +272,20 @@ new Vue({
       } else {
         more = {
           valueBuy: coin.amount * coin.priceBuy,
+          // valueBuy_usd: coin.amount * coin.priceBuy,
           valueSell: this.isNumber(coin.priceSell) ? coin.amount * coin.priceSell : null,
-          valueCurrent_btc: coin.amount * item.price_btc,
-          valueCurrent_usd: coin.amount * item.price_usd,
-          valueCurrent_eur: coin.amount * item.price_eur,
+          valueCurrent: {
+            dv: coin.amount * (item.price_btc / coin.from.price_btc),
+            btc: coin.amount * item.price_btc,
+            usd: coin.amount * item.price_usd,
+            eur: coin.amount * item.price_eur
+          },
           profit: ((coin.priceSell > 0 ? coin.priceSell : item.price_btc) - coin.priceBuy) * coin.amount,
           profit_per: (1 - (coin.priceBuy / (coin.priceSell > 0 ? coin.priceSell : item.price_btc))) * 100,
 
         }
+
+        console.log(more);
       }
 
       return { ...coin, ...item, ...more };

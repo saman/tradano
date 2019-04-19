@@ -205,6 +205,11 @@ hr {
     cursor: pointer;
 }
 
+.settings-buttons-unit .button {
+  padding: 0 5px 0 10px;
+  cursor: pointer;
+}
+
 .dropdown-menu {
     opacity: 1 !important;
 }
