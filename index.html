@@ -167,6 +167,10 @@
                           <b-icon pack="fas" :icon="item.deactive ? 'eye' : 'eye-slash'" size="is-small"></b-icon>
                           {{ item.deactive ? 'Active' : 'Deactive' }}
                         </b-dropdown-item>
+                        <b-dropdown-item @click="copyToClipboard(item)" aria-role="listitem">
+                          <b-icon icon="clipboard" pack="fas" size="is-small"></b-icon>
+                          Copy
+                        </b-dropdown-item>                        
                       </b-dropdown>
                     </td>
 

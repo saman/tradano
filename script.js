@@ -216,6 +216,24 @@ new Vue({
         }
       }
     },
+    copyToClipboard(item) {
+      const data = {
+        symbol: item.symbol + item.from.symbol,
+        price: item.priceBuy,
+        precent: '-5',
+        mode: '<=',
+      };
+      str = '/add\n\n' + JSON.stringify(data, 0, 5);
+      const el = document.createElement('textarea');
+      el.value = str;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    },
     cancelEditCoin() {
       this.addCoinToggle = false;
     },
