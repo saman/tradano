@@ -1,9 +1,20 @@
-html {
+.App {
+  padding: 3rem;
+}
+button:focus {
+  outline: 0;
+}
+
+.content {
+  background-color: #FFF;
+}
+
+/* html {
   overflow-y: auto !important;
   background: #F5F6F9;
 }
 
-#app {
+.App {
   font-size: 0.8rem;
   color: #202538;
 }
@@ -169,7 +180,7 @@ hr {
 
 .trade-icon {
   opacity: 0.5;
-  background: url('./trade.svg');
+  background: url('./img/trade.svg');
   height: 9px;
   width: 13px;
   background-size: cover;
@@ -227,4 +238,4 @@ td.controls {
   width: 100%;
   display: flex;
   justify-content: flex-end;
-}
+} */

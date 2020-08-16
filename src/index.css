@@ -1,0 +1,12 @@
+body {
+  background: #F5F6F9;
+}
+
+.no-border {
+  border: none;
+}
+
+
+.nav-link{
+  border: none !important;
+}
