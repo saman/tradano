@@ -5,6 +5,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
+  Redirect
 } from "react-router-dom";
 
 import NavComponent from './layout/NavComponent/NavComponent';
@@ -21,16 +22,19 @@ function App() {
         <Card>
           <CardBody>
             <Switch>
-              <Route path="/dashboard">
+              <Route exact path="/">
+                <Redirect to="/dashboard" />
+              </Route>
+              <Route exact path="/dashboard">
                 <DashboardPage />
               </Route>
-              <Route path="/trades">
+              <Route exact path="/trades">
                 <TradesPage />
               </Route>
-              <Route path="/portfolio">
+              <Route exact path="/portfolio">
                 <PortfolioPage />
               </Route>
-              <Route path="/settings">
+              <Route exact path="/settings">
                 <SettingsPage />
               </Route>
             </Switch>
