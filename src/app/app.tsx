@@ -1,24 +1,19 @@
 import React from 'react';
-import './App.css';
+import './app.css';
 import { Card, CardBody } from "shards-react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 
-import NavComponent from './layout/NavComponent/NavComponent';
-import DashboardPage from './pages/DashboardPage/DashboardPage';
-import TradesPage from './pages/TradesPage/TradesPage';
-import SettingsPage from './pages/SettingsPage/SettingsPage';
-import PortfolioPage from './pages/PortfolioPage/PortfolioPage';
+import NavLayout from '../layout/nav/nav';
+import DashboardPage from '../pages/dashboard/dashboard';
+import TradesPage from '../pages/trades/trades';
+import SettingsPage from '../pages/settings/settings';
+import PortfolioPage from '../pages/portfolio/portfolio';
 
 function App() {
   return (
     <div className="App">
       <Router>
-        <NavComponent />
+        <NavLayout />
         <Card>
           <CardBody>
             <Switch>

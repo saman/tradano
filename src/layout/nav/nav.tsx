@@ -1,26 +1,18 @@
 import React from 'react';
-import './NavComponent.css';
+import './nav.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faColumns, faCoins, faCog, faListAlt } from '@fortawesome/free-solid-svg-icons'
-import {
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink,
-    Collapse,
-} from "shards-react";
+import { Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, Collapse } from "shards-react";
 
-import { Link } from "react-router-dom";
+import { NavLink as Link } from "react-router-dom";
 
-export interface NavComponentProps {
+export interface NavLayoutProps {
 
 }
 
 const logo = process.env.PUBLIC_URL + '/logo.svg';
 
-const NavComponent: React.SFC<NavComponentProps> = () => {
+const NavLayout: React.SFC<NavLayoutProps> = () => {
     return (
         <Navbar type="light" expand="md">
             <NavbarBrand className="brand" href="/">
@@ -31,13 +23,13 @@ const NavComponent: React.SFC<NavComponentProps> = () => {
             <Collapse navbar>
                 <Nav navbar className="items ml-auto">
                     <NavItem>
-                        <NavLink tag={Link} to="/dashboard">
+                        <NavLink tag={Link} to="dashboard" >
                             <FontAwesomeIcon icon={faColumns} />
                             <span>Dashboard</span>
                         </NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink active tag={Link} to="/trades">
+                        <NavLink tag={Link} to="/trades">
                             <FontAwesomeIcon icon={faListAlt} />
                             <span>Trades</span>
                         </NavLink>
@@ -61,4 +53,4 @@ const NavComponent: React.SFC<NavComponentProps> = () => {
     );
 }
 
-export default NavComponent;
+export default NavLayout;
