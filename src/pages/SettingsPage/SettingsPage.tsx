@@ -5,7 +5,7 @@ export interface SettingsPageProps {
 
 
 const SettingsPage: React.SFC<SettingsPageProps> = () => {
-    return ( <span>Settings</span> );
+    return (<span>Settings</span>);
 }
 
 

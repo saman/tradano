@@ -5,9 +5,7 @@ export interface TradesPageProps {
 }
 
 const TradesPage: React.SFC<TradesPageProps> = () => {
-    return (
-        <span>TradesPage</span>
-    );
+    return (<span>Trades</span>);
 }
 
 export default TradesPage;

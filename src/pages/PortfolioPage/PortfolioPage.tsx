@@ -5,7 +5,7 @@ export interface PortfolioPageProps {
 }
 
 const PortfolioPage: React.SFC<PortfolioPageProps> = () => {
-    return ( <span>Portfolio Page</span> );
+    return (<span>Portfolio</span>);
 }
 
 export default PortfolioPage;
