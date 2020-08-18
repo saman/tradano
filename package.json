@@ -15,6 +15,8 @@
     "@types/node": "^12.12.54",
     "@types/react": "^16.9.46",
     "@types/react-dom": "^16.9.8",
+    "gridjs": "^1.15.2",
+    "gridjs-react": "^1.15.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
