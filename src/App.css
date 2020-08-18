@@ -1,12 +1,22 @@
 .App {
-  padding: 3rem;
-}
-button:focus {
-  outline: 0;
+  padding: 0 2rem;
 }
 
 .content {
   background-color: #FFF;
+}
+.brand img {
+  vertical-align: text-bottom;
+}
+.brand h1{
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  margin-left: 10px;
+  display: inline;
+}
+
+.shadow {
+  box-shadow: 0 5px 10px rgba(50, 50, 93, 0.08) !important;
 }
 
 /* html {
